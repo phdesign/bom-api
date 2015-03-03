@@ -1,5 +1,6 @@
 var request = require('request'),
-    wrapCallback = require('request-callback-wrapper');
+    wrapCallback = require('request-callback-wrapper'),
+    safeParse = require('safe-json-parse/callback');
 
 var IDCodes = {
     tas: 'IDT60801',
@@ -15,9 +16,8 @@ var IDCodes = {
 function getBomDataBySiteNumberState(siteNumber, stateName, callback) {
     var url = 'http://www.bom.gov.au/fwo/' + IDCodes[stateName] + '/' + IDCodes[stateName] + '.' + siteNumber + '.json';
 
-    request(url, wrapCallback(function(error, data) {
+    request({url:url, json: true}, wrapCallback(function(error, data) {
         if(error || !data || !data.observations || !data.observations.data){
-            console.log('could not get data from: ', url);
             return callback('Incorrect state and siteNumber combination: ' + error);
         }
 
