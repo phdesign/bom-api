@@ -16,7 +16,8 @@ function getBomDataBySiteNumberState(siteNumber, stateName, callback) {
     var url = 'http://www.bom.gov.au/fwo/' + IDCodes[stateName] + '/' + IDCodes[stateName] + '.' + siteNumber + '.json';
 
     request(url, wrapCallback(function(error, data) {
-        if(error || !data){
+        if(error || !data || !data.observations || !data.observations.data){
+            console.log('could not get data from: ', url);
             return callback('Incorrect state and siteNumber combination: ' + error);
         }
 
