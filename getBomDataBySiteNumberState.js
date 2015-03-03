@@ -1,4 +1,5 @@
-var request = require('request');
+var request = require('request'),
+    wrapCallback = require('request-callback-wrapper');
 
 var IDCodes = {
     tas: 'IDT60801',
@@ -14,12 +15,9 @@ var IDCodes = {
 function getBomDataBySiteNumberState(siteNumber, stateName, callback) {
     var url = 'http://www.bom.gov.au/fwo/' + IDCodes[stateName] + '/' + IDCodes[stateName] + '.' + siteNumber + '.json';
 
-    request(url, function(error, response, body) {
-        try {
-            var data = JSON.parse(body);
-        } catch (error) {
-            callback('Incorrect state and siteNumber combination: ' + error, null);
-            return;
+    request(url, wrapCallback(function(error, data) {
+        if(error || !data){
+            return callback('Incorrect state and siteNumber combination: ' + error);
         }
 
         var observationData = data.observations.data;
@@ -35,8 +33,8 @@ function getBomDataBySiteNumberState(siteNumber, stateName, callback) {
                 utc_date_time_full: observationData[i].aifstime_utc
             };
             bomInfoArray.push(bomInfo);
-        };
+        }
         callback(null, bomInfoArray);
-    });
+    }));
 }
 module.exports = getBomDataBySiteNumberState;
